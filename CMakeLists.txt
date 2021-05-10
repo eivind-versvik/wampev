@@ -1,4 +1,7 @@
-cmake_minimum_required(VERSION 3.13...3.19)
+cmake_minimum_required(VERSION 3.14...3.19)
+
+# https://github.com/ainfosec/ci_helloworld
+# https://github.com/ttroy50/cmake-examples
 
 project(
   wampev
@@ -8,6 +11,9 @@ project(
 find_package(Boost REQUIRED COMPONENTS filesystem coroutine)
 find_package(Threads)
 
+add_subdirectory(depends)
+add_subdirectory(test)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -15,7 +21,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_CLANG_TIDY
   clang-tidy;
   -header-filter=.;
-  -checks=*;
+  -checks=*,-google-runtime-references,-fuchsia-default-arguments;
   -warnings-as-errors=*;)
 
 
@@ -28,31 +34,12 @@ include(ExternalProject)
 find_package(Git REQUIRED)
 
 
-# https://github.com/ainfosec/ci_helloworld
-
-# ----------------------------
-# CLANG TIDY
-# ----------------------------
-
-
-
-#list(APPEND RUN_CLANG_TIDY_BIN_ARGS
-#    -clang-tidy-binary ${CLANG_TIDY_BIN}
-#    -header-filter=.*
-#    -checks=clan*,cert*,misc*,perf*,cppc*,read*,mode*,-cert-err58-cpp,-misc-noexcept-move-constructor
-#)
-
-#add_custom_target(
-#    tidy
-#    COMMAND ${RUN_CLANG_TIDY_BIN} ${RUN_CLANG_TIDY_BIN_ARGS}
-#    COMMENT "running clang tidy"
-#)
-
-
 
 # ----------------------------
 # CPPCHECK
 # ----------------------------
+
+if(ENABLE_CPPCHECK)
 
 list(APPEND CPPCHECK_CMAKE_ARGS
     "-DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}"
@@ -91,7 +78,7 @@ add_custom_target(
     COMMENT "running cppcheck"
 )
 
-
+endif()
 
 
 # ----------------------------
